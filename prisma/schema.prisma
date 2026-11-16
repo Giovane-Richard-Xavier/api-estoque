@@ -6,3 +6,67 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum EnumRole {
+  ADMIN
+  USER
+}
+
+enum ActionType {
+  ADD
+  DELETAR
+  UPDATED
+  VIEWER
+}
+
+model Users {
+  id     String   @id @default(uuid())
+  name   String
+  email  String   @unique
+  role   EnumRole @default(USER)
+  cpf    String?
+  phone  String?
+  active Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  actons    Actons[]
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?  @db.Text()
+  quantity       Int
+  price          Decimal  @db.Decimal(10, 2)
+  referencePrice Decimal? @db.Decimal(10, 2)
+  active         Boolean  @default(true)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  name        String
+  description String? @db.Text()
+  active      Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Actons {
+  id   String     @id @default(uuid())
+  type ActionType
+
+  userId String
+  user   Users  @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
